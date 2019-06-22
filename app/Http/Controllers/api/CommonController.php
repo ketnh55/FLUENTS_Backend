@@ -12,9 +12,7 @@ use App\Http\Services\SnsInfoService;
 use App\Http\Services\UserSocialServices;
 use App\Model\Interest;
 use App\Model\Profession;
-use App\Model\SNSInfo;
 use App\Notifications\CloseFluentsAccMail;
-use http\Env\Response;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +21,6 @@ use JWTFactory;
 use JWTAuth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\User;
 use Carbon\Carbon;
 
 class CommonController extends  Controller
@@ -44,12 +41,11 @@ class CommonController extends  Controller
     public function get_user_info(Request $request)
     {
         $user = JWTAuth::toUser($request->token);
-
-        $user = $this->getUserObject($user->id);
         if($user->is_active != 1)
         {
             return response()->json(['error' => __('validation.user_is_deactivated')]);
         }
+        $user = $this->getUserObject($user->id);
         return response()->json(compact('user'));
     }
 
@@ -75,6 +71,11 @@ class CommonController extends  Controller
     public function get_sns_info()
     {
         $user = JWTAuth::parseToken()->authenticate();
+        //check if user deactivate
+        if($user->is_active != 1)
+        {
+            return response()->json(['error' => __('validation.user_is_deactivated')]);
+        }
         $info = $this->snsInfoServices->get_sns_info($user);
         return $info;
     }
@@ -129,7 +130,7 @@ class CommonController extends  Controller
     public function getSpecificUserInfo(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|numeric'
+            'user_id' => 'required|numeric|exists:users,id'
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
@@ -138,4 +139,6 @@ class CommonController extends  Controller
         return response()->json(['user' => $user]);
 
     }
+
+
 }

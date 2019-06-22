@@ -61,8 +61,6 @@ class LoginAPIController extends Controller
             return response()->json(['error' => $e->getMessage()]);
         }
         $token = JWTAuth::fromUser($user);
-//        $user->user_type !== null ? $user->require_update_info = 'false' :$user->require_update_info = 'true';
-//        $user->user_socials()->count() > 0? $user->requied_update_sns = 'false' :$user->requied_update_sns = 'true';
         //call crawl data by api
         $user = $this->getUserObject($user->id);
         $crawlSns = $this->crawlSnsData();

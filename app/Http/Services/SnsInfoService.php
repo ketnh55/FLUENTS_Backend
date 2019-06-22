@@ -17,11 +17,7 @@ class SnsInfoService
     public function get_sns_info(User $user)
     {
         $user = User::with('user_socials')->find($user->id);
-        //check if user deactivate
-        if($user->is_active != 1)
-        {
-            return response()->json(['error' => __('validation.user_is_deactivated')]);
-        }
+
         if(sizeof($user->user_socials) == 0)
         {
             return response()->json(null);
